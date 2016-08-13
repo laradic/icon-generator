@@ -1,13 +1,33 @@
 {
-    "name": "radic/icon-generator",
+    "name": "laradic/icon-generator",
     "description": "Generate FontAwesome, Foundation Icons or any custom icon font icons to multiple size and color image files like .ico/.png",
-    "type": "library",
+    "keywords": ["laradic", "icon", "icons", "generator", "fontawesome", "font-awesome", "foundation", "foundation-icons", "laravel"],
     "license": "MIT",
+    "homepage": "https://la.radic.nl",
     "authors": [
-        {
-            "name": "Robin Radic",
-            "email": "robin@radic.nl"
-        }
+        {"name": "Laradic", "homepage": "https://laradic.nl", "email": "info@laradic.nl"},
+        {"name": "Robin Radic", "homepage": "http://robin.radic.nl", "email": "robin@laradic.nl", "role": "Developer"}
     ],
-    "require": {}
+    "require": {
+        "php": ">=5.5.9"
+    },
+    "require-dev": {
+        "laradic/testing": "~1.0",
+        "laradic/phing": "~1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laradic\\IconGenerator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Laradic\\Tests\\IconGenerator\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
 }
