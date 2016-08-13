@@ -1,0 +1,13 @@
+{
+    "name": "radic/icon-generator",
+    "description": "Generate FontAwesome, Foundation Icons or any custom icon font icons to multiple size and color image files like .ico/.png",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Robin Radic",
+            "email": "robin@radic.nl"
+        }
+    ],
+    "require": {}
+}
