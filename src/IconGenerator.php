@@ -1,45 +1,23 @@
 <?php
-/**
- * Part of the Codex Project packages.
- *
- * License and copyright information bundled with this package in the LICENSE file.
- *
- * @author    Robin Radic
- * @copyright Copyright 2016 (c) Codex Project
- * @license   http://codex-project.ninja/license The MIT License
- */
-
-/**
- * Created by IntelliJ IDEA.
- * User: radic
- * Date: 7/2/16
- * Time: 9:23 PM
- */
-
-namespace Codex\Support;
+namespace Laradic\IconGenerator;
 
 
 /**
- * Class IconGenerator
+ * This is the class IconGenerator.
  *
- * @package App\IconGenerator
+ * @package        Laradic\IconGenerator
+ * @author         Radic
+ * @copyright      Copyright (c) 2015, Radic. All rights reserved
  */
 class IconGenerator
 {
     /**
      * @var string
      */
-    protected $scssPath;
-
-    /**
-     * @var string
-     */
-    protected $fontPath;
-
-    /**
-     * @var string
-     */
     protected $outDir;
+
+    /** @var Font */
+    protected $font;
 
     /**
      * @var
@@ -62,56 +40,23 @@ class IconGenerator
     protected $colors = [ ];
 
     /**
+     * factory method
+     *
+     * @var \Laradic\IconGenerator\Factory
+     */
+    private $factory;
+
+    /**
      * IconGenerator constructor.
+     *
+     * @param \Laradic\IconGenerator\Factory $factory
+     * @param \Laradic\IconGenerator\Font    $font
      */
-    public function __construct()
+    public function __construct(Factory $factory, Font $font)
     {
-        $path = public_path('vendor/codex/vendor/font-awesome');
+        $this->factory = $factory;
 
-        $this->scssPath = path_join($path, 'scss', '_variables.scss');
-        $this->fontPath = path_join($path, 'fonts', 'fontawesome-webfont.ttf');
-        $this->outDir   = public_path('vendor/codex/icons');
-    }
-
-    /**
-     * @return array
-     */
-    protected function extractIconData()
-    {
-        $vars = file_get($this->scssPath);
-
-        preg_match_all('/\$fa-var-(.*?):\s"\\\(.*?)\";/', $vars, $matches);
-
-        return collect($matches[ 2 ])->transform(function ($item) {
-            return "&#x{$item};";
-        })->combine($matches[ 1 ])->flip()->toArray();
-    }
-
-    /**
-     * @param string $prefix
-     */
-    public function generate($prefix = '')
-    {
-
-        if ( $this->iconData === null ) {
-            $this->iconData = $this->extractIconData();
-        }
-        if ( file_exists($this->outDir) === false ) {
-            file_makeDirectory($this->outDir);
-        }
-
-        foreach ( $this->icons as $icon ) {
-            $text = $this->iconData[ $icon ];
-
-            foreach ( $this->sizes as $size ) {
-                foreach ( $this->colors as $color ) {
-                    extract($color, true);
-                    $fileName = "{$prefix}{$icon}_{$size}_{$r}_{$g}_{$b}.png";
-                    $fileName = $this->outDir . DIRECTORY_SEPARATOR . $fileName;
-                    $this->create($text, $size, $color, $fileName);
-                }
-            }
-        }
+        $this->font = $font;
     }
 
     /**
@@ -148,6 +93,15 @@ class IconGenerator
         return $this;
     }
 
+    public function reset()
+    {
+        $this->colors = [ ];
+        $this->sizes  = [ ];
+        $this->icons  = [ ];
+
+        return $this;
+    }
+
     /**
      * @param      $r
      * @param null $g
@@ -157,15 +111,7 @@ class IconGenerator
      */
     public function addColor($r, $g = null, $b = null)
     {
-        if ( $g === null ) {
-            #f4645f #4CAF50 #2196F3
-             $color = $this->hex2RGB($r);
-            if ( $color !== false ) {
-                $this->colors[] = $color;
-            }
-        } else {
-            $this->colors[] = compact('r', 'g', 'b');
-        }
+        $this->colors[] = compact('r', 'g', 'b');
 
         return $this;
     }
@@ -190,6 +136,52 @@ class IconGenerator
 
         return $this;
     }
+
+    /**
+     * @param string $outDir
+     */
+    public function setOutDir($outDir)
+    {
+        $this->outDir = $outDir;
+    }
+
+
+    /**
+     * @param string $prefix
+     */
+    public function generate($prefix = '')
+    {
+
+        if ( $this->iconData === null ) {
+            $this->iconData = $this->font->getIconData();
+        }
+        if ( file_exists($this->outDir) === false ) {
+            file_makeDirectory($this->outDir);
+        }
+
+        foreach ( $this->icons as $icon ) {
+            $text = $this->iconData[ $icon ];
+
+            foreach ( $this->sizes as $size ) {
+                foreach ( $this->colors as $color ) {
+
+                    if ( null === $color[ 'g' ] ) {
+                        $fileNameColor = str_remove_left($color[ 'r' ], '#');
+                        $color         = $this->hex2RGB($color[ 'r' ]);
+                        if ( $color === false ) {
+                            continue;
+                        }
+                    } else {
+                        $fileNameColor = "r{$color['r']}g{$color['g']}b{$color['b']}";
+                    }
+                    $fileName = "{$prefix}{$icon}-{$size}x{$size}-{$fileNameColor}.png";
+                    $fileName = $this->outDir . DIRECTORY_SEPARATOR . $fileName;
+                    $this->create($text, $size, $color, $fileName);
+                }
+            }
+        }
+    }
+
 
     /**
      * @param       $text
@@ -221,8 +213,8 @@ class IconGenerator
         imagealphablending($im, true);
 
         // Add the text
-        list($fontX, $fontY) = $this->ImageTTFCenter($im, $text, $this->fontPath, $fontSize);
-        imagettftext($im, $fontSize, 0, $fontX, $fontY, $fontC, $this->fontPath, $text);
+        list($fontX, $fontY) = $this->ImageTTFCenter($im, $text, $this->font->getPath(), $fontSize);
+        imagettftext($im, $fontSize, 0, $fontX, $fontY, $fontC, $this->font->getPath(), $text);
 
         // Using imagepng() results in clearer text compared with imagejpeg()
         imagealphablending($im, false);
@@ -413,52 +405,5 @@ class IconGenerator
         return $returnAsString ? implode($seperator, $rgbArray) : $rgbArray; // returns the rgb string or the associative array
     }
 
-    /**
-     * @return string
-     */
-    public function getScssPath()
-    {
-        return $this->scssPath;
-    }
-
-    /**
-     * @param string $scssPath
-     */
-    public function setScssPath($scssPath)
-    {
-        $this->scssPath = $scssPath;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFontPath()
-    {
-        return $this->fontPath;
-    }
-
-    /**
-     * @param string $fontPath
-     */
-    public function setFontPath($fontPath)
-    {
-        $this->fontPath = $fontPath;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOutDir()
-    {
-        return $this->outDir;
-    }
-
-    /**
-     * @param string $outDir
-     */
-    public function setOutDir($outDir)
-    {
-        $this->outDir = $outDir;
-    }
 
 }
