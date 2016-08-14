@@ -1,4 +1,4 @@
-<project name="laradic/dependencies" default="start">
+<project name="laradic/icon-generator" default="start">
     <property file="build.properties"/>
 
     <property name="tools.dir" value=""/>
