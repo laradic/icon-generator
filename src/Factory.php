@@ -32,7 +32,7 @@ class Factory
      */
     public function removeFont($font)
     {
-        unset($this->fonts[ $this->resolveFontName($font) ]);
+        unset($this->fonts[ (string)$font ]);
     }
 
     /**
@@ -77,7 +77,7 @@ class Factory
      */
     public function hasFont($font)
     {
-        return array_key_exists($this->resolveFontName($font), $this->fonts);
+        return array_key_exists((string)$font, $this->fonts);
     }
 
     /**
@@ -115,8 +115,7 @@ class Factory
      */
     public function createGenerator($font)
     {
-        $font = $this->getFont($font);
-        return new $this->generatorClass($this, $font);
+        return new $this->generatorClass($this, $this->getFont($font));
     }
 
     /**
@@ -130,6 +129,12 @@ class Factory
     {
         $this->generatorClass = $generatorClass;
         return $this;
+    }
+
+    public function reset()
+    {
+        $this->fonts          = [ ];
+        $this->generatorClass = IconGenerator::class;
     }
 
     /**
