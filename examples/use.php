@@ -14,12 +14,11 @@ $icons->addDefaultFonts();
 $generate = function (IconGenerator $generator, $prefix = '') {
 
     // 16x16px, 32x32px, etc
-    $generator->setSizes(16, 32, 64, 128);
+    $generator->setSizes(140);
 
     // add some material colors
-    $generator->addColor('#ef5350'); // red 400
-    $generator->addColor('#42A5F5'); // blue 400
-    $generator->addColor('#424242'); // grey 800
+    $generator->addColor('#b0bec5'); // red 400
+    $generator->addColor('#37474f'); // blue 400
 
     $generator->setOutDir(__DIR__ . '/../generated');
 
@@ -28,13 +27,13 @@ $generate = function (IconGenerator $generator, $prefix = '') {
 
 
 $fa = $icons->createGenerator('font-awesome');
-$fa->setIcons('android', 'car', 'html5', 'github');
+$fa->setIcons('puzzle-piece');
 $generate($fa, 'fa-');
 
 
-$found = $icons->createGenerator('foundation-general');
-$found->setIcons([ 'checkmark', 'remove', 'mail', 'calendar' ]);
-$generate($found, 'found-');
+//$found = $icons->createGenerator('foundation-general');
+//$found->setIcons([ 'checkmark', 'remove', 'mail', 'calendar' ]);
+//$generate($found, 'found-');
 
 
 
