@@ -151,14 +151,14 @@ class Factory
 
     /** @noinspection MoreThanThreeArgumentsInspection
      * @param       $font
-     * @param array $icons
-     * @param array $sizes
-     * @param array $colors
+     * @param array|string $icons
+     * @param array|string $sizes
+     * @param array|string $colors
      * @param null  $outDir
      *
-     * @return int
+     * @return string[]
      */
-    public function generate($font, array $icons, array $sizes, array $colors, $outDir = null)
+    public function generate($font, $icons, $sizes, $colors, $outDir = null)
     {
         return $this->createGenerator($font)
             ->setColors($colors)

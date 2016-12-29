@@ -17,7 +17,7 @@ class IconGenerator
     protected $outDir;
 
     /** @var Font */
-    public  $font;
+    protected $font;
 
     /**
      * @var
@@ -50,6 +50,14 @@ class IconGenerator
         $this->font = $font;
     }
 
+    /**
+     * getFont method
+     * @return \Laradic\IconGenerator\Font
+     */
+    public function getFont()
+    {
+        return $this->font;
+    }
 
     /**
      * @param $icons
@@ -148,7 +156,7 @@ class IconGenerator
      *
      * @param string $prefix Optional filename prefix for all generated files
      *
-     * @return int The number of files generated
+     * @return string[] The generated file paths
      */
     public function generate($prefix = '')
     {
@@ -160,7 +168,7 @@ class IconGenerator
             file_makeDirectory($this->outDir, 0755, true);
         }
 
-        $generated = 0;
+        $generated = [];
 
         foreach ( $this->icons as $icon ) {
             $text = $this->iconData[ $icon ];
@@ -180,7 +188,7 @@ class IconGenerator
                     $fileName = "{$prefix}{$icon}-{$size}x{$size}-{$fileNameColor}.png";
                     $fileName = $this->outDir . DIRECTORY_SEPARATOR . $fileName;
                     $this->create($text, $size, $color, $fileName);
-                    $generated++;
+                    $generated[] = $fileName;
                 }
             }
         }
@@ -198,7 +206,9 @@ class IconGenerator
     protected function create($text, $outputSize, array $color, $fileName)
     {
         // Set the content-type
-        header('Content-Type: image/png');
+        if(!isset($GLOBALS['__PHPUNIT_BOOTSTRAP'])) {
+            header('Content-Type: image/png');
+        }
 
         #$outputSize = 64;
 

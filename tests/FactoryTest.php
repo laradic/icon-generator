@@ -16,15 +16,15 @@ class FactoryTest extends TestCase
     public function test_can_manage_fonts()
     {
         $factory = new Factory();
-        $fontName = 'font-awesome';
-        $font = \Mockery::mock('Laradic\IconGenerator\Font');
-        $font->shouldReceive('getName')->once()->andReturnValues([$fontName]);
-        $font->shouldReceive('getIconData')->twice()->andReturnValues([require __DIR__ . '/font-awesome-icon-data.php']);
+        $font = $this->getFontAwesomeMock($fontName = 'font-awesome');
         $factory->addFont($font);
         $this->assertInstanceOf('Laradic\IconGenerator\Font', $factory->getFont($fontName));
-
         $gen = $factory->createGenerator($fontName);
-        $gen->addColor('#666')->setIcons('car')->setSizes(32)->setOutDir(getcwd())->generate();
+        $gen->addColor('#666')
+            ->setIcons('car')
+            ->setSizes(32)
+            ->setOutDir($this->getTempPath())
+            ->generate();
     }
 
     public function test_can_create_generator_for_font()
@@ -33,13 +33,14 @@ class FactoryTest extends TestCase
         $factory->addFont($fontName = 'font-awesome', $font = \Mockery::mock('Laradic\IconGenerator\Font'));
         $generator = $factory->createGenerator($fontName);
         $this->assertInstanceOf('Laradic\\IconGenerator\\IconGenerator', $generator);
+        $this->assertInstanceOf('Laradic\IconGenerator\Font', $generator->getFont());
+    }
 
-        // __DIR__ . '/../resources/font-awesome/fontawesome-webfont.ttf'
-//        $factory->addFont(new Font'font-awesome2', __DIR__ . '/../resources/font-awesome/fontawesome-webfont.ttf');
-//        static::assertTrue($factory->hasFont($fontName));
-//        static::assertTrue($factory->hasFont($fontName));
-//        $factory->removeFont($font);
-//        $factory->removeFont($fontName);
-//        static::assertFalse($factory->hasFont($fontName));
+    public function test_can_generate_icons()
+    {
+        $factory = new Factory();
+        $factory->addFont($this->getFontAwesomeMock($fontName = 'font-awesome'));
+        $generated = $factory->generate('font-awesome', 'book', 15, '#666', $this->getTempPath());
+        $this->assertFileExists($generated[0]);
     }
 }
