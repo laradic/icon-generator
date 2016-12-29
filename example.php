@@ -4,7 +4,7 @@
  *
  * License and copyright information bundled with this package in the LICENSE file
  */
-require __DIR__ . '/../../../../vendor/autoload.php';
+require __DIR__ . '/../../../vendor/autoload.php';
 
 use Laradic\IconGenerator\Factory;
 use Laradic\IconGenerator\IconGenerator;
@@ -14,20 +14,19 @@ $icons->addDefaultFonts();
 $generate = function (IconGenerator $generator, $prefix = '') {
 
     // 16x16px, 32x32px, etc
-    $generator->setSizes(140);
+    $generator->setSizes(250);
 
-    // add some material colors
-    $generator->addColor('#b0bec5'); // red 400
-    $generator->addColor('#37474f'); // blue 400
+    // add colors
+    $generator->addColor('#6C8EBF'); // red 400
 
-    $generator->setOutDir(__DIR__ . '/../generated');
+    $generator->setOutDir(__DIR__ . '/generated-icons');
 
     $generator->generate($prefix);
 };
 
 
 $fa = $icons->createGenerator('font-awesome');
-$fa->setIcons('puzzle-piece');
+$fa->setIcons('search');
 $generate($fa, 'fa-');
 
 

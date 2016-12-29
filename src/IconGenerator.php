@@ -17,7 +17,7 @@ class IconGenerator
     protected $outDir;
 
     /** @var Font */
-    protected $font;
+    public  $font;
 
     /**
      * @var
@@ -27,24 +27,17 @@ class IconGenerator
     /**
      * @var array
      */
-    protected $icons = [ ];
+    protected $icons = [];
 
     /**
      * @var array
      */
-    protected $sizes = [ ];
+    protected $sizes = [];
 
     /**
      * @var array
      */
-    protected $colors = [ ];
-
-    /**
-     * factory method
-     *
-     * @var \Laradic\IconGenerator\Factory
-     */
-    private $factory;
+    protected $colors = [];
 
     /**
      * IconGenerator constructor.
@@ -52,12 +45,11 @@ class IconGenerator
      * @param \Laradic\IconGenerator\Factory $factory
      * @param \Laradic\IconGenerator\Font    $font
      */
-    public function __construct(Factory $factory, Font $font)
+    public function __construct(Font $font)
     {
-        $this->factory = $factory;
-
         $this->font = $font;
     }
+
 
     /**
      * @param $icons
@@ -88,24 +80,24 @@ class IconGenerator
      */
     public function resetColors()
     {
-        $this->colors = [ ];
+        $this->colors = [];
 
         return $this;
     }
 
     public function reset()
     {
-        $this->colors = [ ];
-        $this->sizes  = [ ];
-        $this->icons  = [ ];
+        $this->colors = [];
+        $this->sizes  = [];
+        $this->icons  = [];
 
         return $this;
     }
 
     /**
-     * @param      $r
-     * @param null $g
-     * @param null $b
+     * @param string      $r
+     * @param string|null $g
+     * @param string|null $b
      *
      * @return $this
      */
@@ -138,16 +130,25 @@ class IconGenerator
     }
 
     /**
-     * @param string $outDir
+     * Set the directory where to generate the icons
+     *
+     * @param $outDir string The absolute path to the
+     *
+     * @return $this
      */
     public function setOutDir($outDir)
     {
         $this->outDir = $outDir;
+        return $this;
     }
 
 
     /**
-     * @param string $prefix
+     * Starts the generator and generates the PNG images
+     *
+     * @param string $prefix Optional filename prefix for all generated files
+     *
+     * @return int The number of files generated
      */
     public function generate($prefix = '')
     {
@@ -156,8 +157,10 @@ class IconGenerator
             $this->iconData = $this->font->getIconData();
         }
         if ( file_exists($this->outDir) === false ) {
-            file_makeDirectory($this->outDir);
+            file_makeDirectory($this->outDir, 0755, true);
         }
+
+        $generated = 0;
 
         foreach ( $this->icons as $icon ) {
             $text = $this->iconData[ $icon ];
@@ -177,9 +180,12 @@ class IconGenerator
                     $fileName = "{$prefix}{$icon}-{$size}x{$size}-{$fileNameColor}.png";
                     $fileName = $this->outDir . DIRECTORY_SEPARATOR . $fileName;
                     $this->create($text, $size, $color, $fileName);
+                    $generated++;
                 }
             }
         }
+
+        return $generated;
     }
 
 
@@ -388,7 +394,7 @@ class IconGenerator
     protected function hex2RGB($hexStr, $returnAsString = false, $seperator = ',')
     {
         $hexStr   = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
-        $rgbArray = [ ];
+        $rgbArray = [];
         if ( strlen($hexStr) == 6 ) { //If a proper hex code, convert using bitwise operation. No overhead... faster
             $colorVal        = hexdec($hexStr);
             $rgbArray[ 'r' ] = 0xFF & ($colorVal >> 0x10);

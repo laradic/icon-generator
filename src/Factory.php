@@ -3,11 +3,29 @@ namespace Laradic\IconGenerator;
 
 
 /**
- * This is the class Factory.
+ *
+ * This class
+ * 1. Add and manages fonts
+ * 2. Instantiates and returns IconGenerator for a font
+ * 3. Can optionally add the default font-awesome and foundation fonts
+ *
+ * <code>
+ * $factory = new Factory();
+ *
+ * // Adds all
+ * $factory->addDefaultFonts();
+ *
+ * // Or one at a time
+ * $factory->addDefaultFontAwesomeFont();
+ * $factory->addDefaultFoundationIconsFont();
+ *
+ *
+ * </code>
  *
  * @package        Laradic\IconGenerator
  * @author         Radic
  * @copyright      Copyright (c) 2015, Radic. All rights reserved
+ *
  */
 class Factory
 {
@@ -16,7 +34,7 @@ class Factory
      *
      * @var Font[]
      */
-    protected $fonts = [ ];
+    protected $fonts = [];
 
     /**
      * generatorClass method
@@ -115,7 +133,7 @@ class Factory
      */
     public function createGenerator($font)
     {
-        return new $this->generatorClass($this, $this->getFont($font));
+        return new $this->generatorClass($this->getFont($font));
     }
 
     /**
@@ -131,54 +149,76 @@ class Factory
         return $this;
     }
 
+    /** @noinspection MoreThanThreeArgumentsInspection
+     * @param       $font
+     * @param array $icons
+     * @param array $sizes
+     * @param array $colors
+     * @param null  $outDir
+     *
+     * @return int
+     */
+    public function generate($font, array $icons, array $sizes, array $colors, $outDir = null)
+    {
+        return $this->createGenerator($font)
+            ->setColors($colors)
+            ->setIcons($icons)
+            ->setSizes($sizes)
+            ->setOutDir($outDir)
+            ->generate();
+    }
+
     public function reset()
     {
-        $this->fonts          = [ ];
+        $this->fonts          = [];
         $this->generatorClass = IconGenerator::class;
+        return $this;
     }
 
     /**
      * addDefaultFonts method
+     * @return $this
      */
     public function addDefaultFonts()
     {
         $this->addDefaultFontAwesomeFont();
         $this->addDefaultFoundationIconsFont();
+        return $this;
     }
 
     /**
      * addDefaultFontAwesomeFont method
      */
-    protected function addDefaultFontAwesomeFont()
+    public function addDefaultFontAwesomeFont()
     {
-        $font = $this->addFont('font-awesome', __DIR__ . '/../resources/font-awesome/fontawesome-webfont.ttf');
+        $font = $this->addFont('font-awesome', __DIR__ . '/../resources/fonts/font-awesome/fontawesome-webfont.ttf');
         $font->setDataExtractor(function () {
-            $vars = file_get(__DIR__ . '/../resources/font-awesome/_variables.scss');
+            $vars = file_get(__DIR__ . '/../resources/fonts/font-awesome/_variables.scss');
             preg_match_all('/\$fa-var-(.*?):\s"\\\(.*?)\";/', $vars, $matches);
             return collect($matches[ 2 ])->transform(function ($item) {
                 return "&#x{$item};";
             })->combine($matches[ 1 ])->flip()->toArray();
         });
+        return $this;
     }
 
     /**
      * addDefaultFoundationIconsFont method
      */
-    protected function addDefaultFoundationIconsFont()
+    public function addDefaultFoundationIconsFont()
     {
         $groups = [ 'accessibility', 'general_enclosed', 'general', 'social' ];
         foreach ( $groups as $group ) {
-
-
-            $font = $this->addFont("foundation-{$group}", __DIR__ . "/../resources/foundation/{$group}_foundicons.ttf");
+            $font = $this->addFont("foundation-{$group}", __DIR__ . "/../resources/fonts/foundation/{$group}_foundicons.ttf");
             $font->setDataExtractor(function () use ($group) {
-                $vars = file_get(__DIR__ . "/../resources/foundation/{$group}_foundicons.scss");
+                $vars = file_get(__DIR__ . "/../resources/fonts/foundation/{$group}_foundicons.scss");
                 preg_match_all('/@include i-class\((.*?),"(.*?)"\);/', $vars, $matches);
                 return collect($matches[ 2 ])->transform(function ($item) {
                     return "&#xf{$item};";
                 })->combine($matches[ 1 ])->flip()->toArray();
             });
         }
+        return $this;
     }
 
 
