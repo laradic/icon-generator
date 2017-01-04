@@ -206,7 +206,7 @@ class IconGenerator
     protected function create($text, $outputSize, array $color, $fileName)
     {
         // Set the content-type
-        if(!isset($GLOBALS['__PHPUNIT_BOOTSTRAP'])) {
+        if(php_sapi_name() !== 'cli') {
             header('Content-Type: image/png');
         }
 
